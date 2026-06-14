@@ -1,0 +1,14 @@
+{
+  "name": "bolalar-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI tutor for Uzbek-speaking children: generated lessons, quizzes and SM-2 spaced repetition",
+  "license": "MIT",
+  "workspaces": ["server", "web"],
+  "scripts": {
+    "dev": "npm run dev --workspace=@bolalar-ai/server & npm run dev --workspace=@bolalar-ai/web",
+    "build": "npm run build --workspace=@bolalar-ai/server && npm run build --workspace=@bolalar-ai/web",
+    "test": "npm run test --workspace=@bolalar-ai/server",
+    "typecheck": "npm run typecheck --workspace=@bolalar-ai/server && npm run typecheck --workspace=@bolalar-ai/web"
+  }
+}
