@@ -128,6 +128,10 @@ export const api = {
 
   me: () => call<{ user: User }>("/auth/me"),
 
+  /** Changing the age re-filters which topics the child is offered. */
+  updateAge: (age: number) =>
+    call<{ user: User }>("/auth/me", { method: "PATCH", body: JSON.stringify({ age }) }),
+
   /**
    * Exchanges a Google ID token for a session. The first time an account signs
    * in the server answers 409-style with `age_required`, because Google does

@@ -24,6 +24,10 @@ const LoginSchema = z.object({
   password: z.string().min(1),
 });
 
+const UpdateMeSchema = z.object({
+  age: z.number().int().min(5).max(16),
+});
+
 const GoogleSchema = z.object({
   /** The ID token Google Identity Services hands the browser. */
   credential: z.string().min(20),
@@ -163,6 +167,35 @@ export function authRoutes(db: Db, config: Config, google: GoogleVerifier | null
       });
     }),
   );
+
+  /**
+   * Changes the child's age.
+   *
+   * The topic list is filtered by age, so getting this wrong at sign-up leaves
+   * a child staring at three topics with no way to understand why. Google
+   * sign-in makes that likelier still, since the age is guessed in a hurry
+   * during a popup.
+   */
+  router.patch("/me", requireAuth(config), (req, res) => {
+    const { sub } = requireUser(req);
+    const { age } = UpdateMeSchema.parse(req.body);
+
+    const result = db.prepare("UPDATE users SET age = ? WHERE id = ?").run(age, sub);
+    if (result.changes === 0) throw HttpError.unauthorized();
+
+    const user = db
+      .prepare("SELECT id, username, display_name, age FROM users WHERE id = ?")
+      .get(sub) as { id: number; username: string; display_name: string; age: number };
+
+    res.json({
+      user: {
+        id: user.id,
+        username: user.username,
+        displayName: user.display_name,
+        age: user.age,
+      },
+    });
+  });
 
   router.get("/me", requireAuth(config), (req, res) => {
     const { sub } = requireUser(req);

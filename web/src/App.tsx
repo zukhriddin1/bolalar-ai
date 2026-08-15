@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { api, setToken, type Lesson, type Progress, type Topic, type User } from "./api";
+import { AgeBadge } from "./components/AgeBadge";
 import { LampAuthScreen } from "./components/LampAuthScreen";
 import { ProgressCard } from "./components/ProgressCard";
 import { Quiz } from "./components/Quiz";
@@ -80,6 +81,15 @@ export default function App() {
             <h1 className="text-xl font-bold text-brand-700">Bolalar.AI</h1>
             <p className="text-sm text-slate-500">Salom, {user.displayName}!</p>
           </div>
+
+          <div className="flex items-center gap-3">
+            <AgeBadge
+              user={user}
+              onChanged={(updated) => {
+                setUser(updated);
+                void loadDashboard();
+              }}
+            />
           <button
             type="button"
             onClick={() => {
@@ -90,6 +100,7 @@ export default function App() {
           >
             Chiqish
           </button>
+          </div>
         </div>
       </header>
 
@@ -109,7 +120,8 @@ export default function App() {
                 Bugun nimani o'rganamiz?
               </h2>
               <p className="mb-4 text-sm text-slate-500">
-                Mavzuni tanla — dars va test sen uchun tayyorlanadi.
+                Mavzuni tanla — dars va test sen uchun tayyorlanadi. Ro'yxat {user.age} yoshga
+                moslangan; yuqoridagi yoshni o'zgartirsang, boshqa mavzular ham ochiladi.
               </p>
 
               <div className="grid gap-3 sm:grid-cols-2">

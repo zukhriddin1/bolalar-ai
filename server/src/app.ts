@@ -56,7 +56,7 @@ function cors(config: Config): express.RequestHandler {
     res.setHeader("Access-Control-Allow-Origin", config.CORS_ORIGIN);
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
 
     if (req.method === "OPTIONS") {
       res.sendStatus(204);

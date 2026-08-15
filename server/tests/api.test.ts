@@ -275,6 +275,48 @@ describe("answering and review scheduling", () => {
   });
 });
 
+describe("changing the age", () => {
+  it("re-filters the topic list", async () => {
+    const token = await registerAndLogin(); // age 9
+
+    const before = await request(app)
+      .get("/api/lessons/topics")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+    expect(before.body.topics.map((t: { slug: string }) => t.slug)).toContain("kasrlar");
+
+    const updated = await request(app)
+      .patch("/api/auth/me")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ age: 6 })
+      .expect(200);
+    expect(updated.body.user.age).toBe(6);
+
+    const after = await request(app)
+      .get("/api/lessons/topics")
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    const slugs = after.body.topics.map((t: { slug: string }) => t.slug);
+    expect(slugs).not.toContain("kasrlar");
+    expect(slugs).toContain("qoshish");
+    expect(slugs.length).toBeLessThan(before.body.topics.length);
+  });
+
+  it("rejects an age outside the supported range", async () => {
+    const token = await registerAndLogin();
+    await request(app)
+      .patch("/api/auth/me")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ age: 3 })
+      .expect(400);
+  });
+
+  it("requires a session", async () => {
+    await request(app).patch("/api/auth/me").send({ age: 10 }).expect(401);
+  });
+});
+
 describe("unknown routes", () => {
   it("returns a structured 404", async () => {
     const response = await request(app).get("/api/nope").expect(404);
