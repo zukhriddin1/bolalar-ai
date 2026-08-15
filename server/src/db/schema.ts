@@ -65,4 +65,28 @@ export const MIGRATIONS: string[] = [
   );
   CREATE INDEX idx_attempts_user ON attempts(user_id, created_at DESC);
   `,
+
+  // 2: federated sign-in. SQLite cannot drop a NOT NULL constraint in place, so
+  // the table is rebuilt: a Google-only account has no password to hash.
+  `
+  CREATE TABLE users_new (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    username      TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+    display_name  TEXT    NOT NULL,
+    password_hash TEXT,
+    google_sub    TEXT    UNIQUE,
+    email         TEXT,
+    age           INTEGER NOT NULL CHECK (age BETWEEN 5 AND 16),
+    created_at    TEXT    NOT NULL DEFAULT (datetime('now')),
+    CHECK (password_hash IS NOT NULL OR google_sub IS NOT NULL)
+  );
+
+  INSERT INTO users_new (id, username, display_name, password_hash, age, created_at)
+    SELECT id, username, display_name, password_hash, age, created_at FROM users;
+
+  DROP TABLE users;
+  ALTER TABLE users_new RENAME TO users;
+
+  CREATE INDEX idx_users_google ON users(google_sub);
+  `,
 ];

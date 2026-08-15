@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { api, setToken, type Lesson, type Progress, type Topic, type User } from "./api";
-import { AuthScreen } from "./components/AuthScreen";
+import { LampAuthScreen } from "./components/LampAuthScreen";
 import { ProgressCard } from "./components/ProgressCard";
 import { Quiz } from "./components/Quiz";
 
@@ -70,7 +70,7 @@ export default function App() {
     return <div className="grid h-full place-items-center text-slate-400">Yuklanmoqda…</div>;
   }
 
-  if (!user) return <AuthScreen onSignedIn={signedIn} />;
+  if (!user) return <LampAuthScreen onSignedIn={signedIn} />;
 
   return (
     <div className="min-h-full bg-brand-50">

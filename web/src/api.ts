@@ -58,11 +58,14 @@ export interface DueCard {
 
 export class ApiError extends Error {
   readonly status: number;
+  /** Machine-readable error code from the server, e.g. `age_required`. */
+  readonly code: string | undefined;
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, code?: string) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.code = code;
   }
 }
 
@@ -99,8 +102,12 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
 
   if (!response.ok) {
-    const body = (await response.json().catch(() => ({}))) as { error?: string };
-    throw new ApiError(response.status, body.error ?? `So'rov muvaffaqiyatsiz (${response.status})`);
+    const body = (await response.json().catch(() => ({}))) as { error?: string; code?: string };
+    throw new ApiError(
+      response.status,
+      body.error ?? `So'rov muvaffaqiyatsiz (${response.status})`,
+      body.code,
+    );
   }
 
   return (await response.json()) as T;
@@ -120,6 +127,17 @@ export const api = {
     }),
 
   me: () => call<{ user: User }>("/auth/me"),
+
+  /**
+   * Exchanges a Google ID token for a session. The first time an account signs
+   * in the server answers 409-style with `age_required`, because Google does
+   * not tell us how old a child is and the curriculum is age-gated.
+   */
+  loginWithGoogle: (input: { credential: string; age?: number }) =>
+    call<{ token: string; user: User }>("/auth/google", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
 
   topics: () => call<{ topics: Topic[] }>("/lessons/topics"),
 

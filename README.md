@@ -13,6 +13,10 @@ child profile in a few seconds to take a lesson. The API sleeps when idle, so th
 request can take up to a minute to wake it.
 
 <p align="center">
+  <img src="docs/lamp-on.png" alt="Sign-in screen: a lamp lighting a dark room, with the login card beside it" width="80%">
+</p>
+
+<p align="center">
   <img src="docs/dashboard.png" alt="Dashboard with streak, accuracy and topic list" width="49%">
   <img src="docs/quiz.png" alt="Quiz with immediate feedback and explanation" width="49%">
 </p>
@@ -43,7 +47,7 @@ The answer here has four parts:
 
 ## Features
 
-- Register / login with JWT sessions and scrypt-hashed passwords
+- Register / login with JWT sessions and scrypt-hashed passwords, or **sign in with Google**
 - Age-filtered topic list and age-derived difficulty (1–5)
 - Lesson + multiple-choice quiz generated per child, per topic, per day
 - Immediate feedback with an explanation of *why* an answer is right
@@ -51,6 +55,45 @@ The answer here has four parts:
   re-queues it in 10 minutes rather than days
 - Progress dashboard: streak, accuracy, per-topic breakdown, cards due now
 - Per-IP rate limiting, structured error responses, graceful shutdown
+
+---
+
+## Sign-in
+
+The sign-in screen opens in the dark: a lamp, a pull cord, and one thing to do.
+Pulling the cord lights the room and the card slides in beside it. The whole
+thing is CSS — one `lamp-on` class flips the cone, the glow, the floor pool and
+the card together, so every transition can be interrupted mid-flight and the
+bundle gains no animation library. `prefers-reduced-motion` starts with the
+light already on. (Design adapted from the "lamp toggle login" concept by
+[@code.xr](https://www.instagram.com/code.xr/).)
+
+### Sign in with Google
+
+Optional and off by default: with no client id the button is not rendered at
+all, because a button that cannot work is worse than no button.
+
+1. In the [Google Cloud console](https://console.cloud.google.com/apis/credentials),
+   create an **OAuth client ID** of type *Web application*.
+2. Add your site to **Authorized JavaScript origins** — `http://localhost:5173`
+   for development, plus the deployed URL.
+3. Set the same id in both places: `GOOGLE_CLIENT_ID` for the API and
+   `VITE_GOOGLE_CLIENT_ID` for the web client.
+
+The API verifies the ID token locally against Google's published keys
+(`src/auth/google.ts`) rather than calling the tokeninfo endpoint on every
+sign-in. Two checks matter more than the rest:
+
+- **The audience must be our own client id.** Without that, a token minted for
+  any other Google application would be accepted here — the classic way this
+  integration is quietly broken.
+- **Accounts are keyed on Google's `sub`, never the email.** An address can be
+  reassigned by a workspace admin; the subject id cannot. Existing password
+  accounts are deliberately *not* linked by email either, since they carry no
+  verified address of their own.
+
+Google does not report a child's age and the curriculum is age-gated, so the
+first sign-in answers `400 age_required` and the client asks for it once.
 
 ---
 

@@ -27,3 +27,138 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Lamp sign-in scene
+
+   The lamp is drawn with plain elements rather than an SVG or an image so the
+   "on" state can be a pure CSS state change: one boolean flips the cone, the
+   glow, the floor pool and the card together, and every transition is
+   interruptible mid-flight.
+   --------------------------------------------------------------------------- */
+
+.lamp-scene {
+  background:
+    radial-gradient(120% 80% at 50% 0%, #16161c 0%, #0a0a0d 55%, #06060a 100%);
+}
+
+.lamp-hint {
+  letter-spacing: 0.32em;
+}
+
+.lamp-metal {
+  background: linear-gradient(180deg, #4a4a52 0%, #2a2a31 100%);
+  transition: background 600ms ease, box-shadow 600ms ease;
+}
+
+.lamp-on .lamp-metal {
+  background: linear-gradient(180deg, #6d6d78 0%, #3a3a44 100%);
+}
+
+/* The stem sits inside the beam, so it has to stay dark or it reads as a
+   glowing rod instead of a silhouette. */
+.lamp-shaft {
+  background: linear-gradient(180deg, #35353d 0%, #1e1e24 100%);
+  transition: background 600ms ease;
+}
+
+.lamp-on .lamp-shaft {
+  background: linear-gradient(180deg, #2a2a31 0%, #17171c 100%);
+}
+
+/* The emitting edge of the shade. */
+.lamp-lip {
+  background: #2b2b33;
+  transition: background 500ms ease, box-shadow 500ms ease;
+}
+
+.lamp-on .lamp-lip {
+  background: #ffe6b8;
+  box-shadow:
+    0 0 12px 2px rgba(255, 205, 130, 0.9),
+    0 0 40px 12px rgba(255, 190, 110, 0.45);
+}
+
+/* Light cone: narrow at the shade, wide at the floor. */
+.lamp-cone {
+  clip-path: polygon(38% 0%, 62% 0%, 100% 100%, 0% 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 214, 152, 0.5) 0%,
+    rgba(255, 200, 130, 0.18) 45%,
+    rgba(255, 190, 120, 0.02) 100%
+  );
+  opacity: 0;
+  transform: scaleY(0.9);
+  transform-origin: top center;
+  transition: opacity 650ms ease, transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+  filter: blur(2px);
+}
+
+.lamp-on .lamp-cone {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+/* Pool of light where the cone meets the floor. */
+.lamp-pool {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 208, 145, 0.42) 0%,
+    rgba(255, 195, 125, 0.14) 45%,
+    rgba(255, 190, 120, 0) 72%
+  );
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 700ms ease, transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  filter: blur(6px);
+}
+
+.lamp-on .lamp-pool {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* The pull cord dips when tugged, then settles. */
+.lamp-cord {
+  transition: transform 480ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.lamp-cord[data-pulling="true"] {
+  transform: translateY(10px);
+  transition-duration: 120ms;
+  transition-timing-function: ease-out;
+}
+
+.lamp-knob {
+  transition: background 500ms ease, box-shadow 500ms ease;
+}
+
+.lamp-on .lamp-knob {
+  background: #ffd79a;
+  box-shadow: 0 0 10px 2px rgba(255, 200, 130, 0.7);
+}
+
+/* The card is mounted but unreachable until the light is on. */
+.lamp-card {
+  opacity: 0;
+  transform: translateY(18px) scale(0.985);
+  transition: opacity 550ms ease 120ms, transform 550ms cubic-bezier(0.22, 1, 0.36, 1) 120ms;
+}
+
+.lamp-on .lamp-card {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lamp-cone,
+  .lamp-pool,
+  .lamp-card,
+  .lamp-cord,
+  .lamp-metal,
+  .lamp-lip,
+  .lamp-knob {
+    transition-duration: 1ms !important;
+  }
+}

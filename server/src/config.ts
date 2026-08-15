@@ -9,6 +9,9 @@ const EnvSchema = z.object({
   JWT_TTL: z.string().default("7d"),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
 
+  /** Google OAuth client ID. Sign-in with Google is disabled when unset. */
+  GOOGLE_CLIENT_ID: z.string().optional(),
+
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
   OPENAI_BASE_URL: z.string().default("https://api.openai.com/v1"),
