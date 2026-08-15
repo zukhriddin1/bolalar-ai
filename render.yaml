@@ -1,0 +1,37 @@
+# Render blueprint for the API.
+#
+# The web client deploys separately to Vercel (see web/vercel.json). The API
+# cannot: it needs a long-running process, a native SQLite module and a real
+# filesystem, none of which a serverless function provides.
+services:
+  - type: web
+    name: bolalar-ai-api
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Generated once by Render and kept across deploys.
+      - key: JWT_SECRET
+        generateValue: true
+      # The Vercel URL of the web client, e.g. https://bolalar-ai.vercel.app
+      # Set this in the dashboard after the frontend is deployed.
+      - key: CORS_ORIGIN
+        sync: false
+      # Optional: switches lesson generation from the offline generator to a model.
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /data/bolalar.db
+
+    # On the free plan the container filesystem is ephemeral, so the SQLite file
+    # is reset whenever the service restarts — fine for a public demo. To make it
+    # durable, attach a disk mounted at /data (paid plans only):
+    #
+    # disk:
+    #   name: bolalar-data
+    #   mountPath: /data
+    #   sizeGB: 1

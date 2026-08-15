@@ -66,6 +66,16 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Base URL of the API.
+ *
+ * Empty in development, where the Vite dev server proxies /api to localhost:4000.
+ * In production the API lives on a different host (it needs a long-running
+ * process and a real filesystem for SQLite), so the origin is injected at build
+ * time via VITE_API_URL.
+ */
+const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+
 const TOKEN_KEY = "bolalar.token";
 
 export function getToken(): string | null {
@@ -79,7 +89,7 @@ export function setToken(token: string | null): void {
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${API_BASE}/api${path}`, {
     ...init,
     headers: {
       ...(init.body ? { "Content-Type": "application/json" } : {}),

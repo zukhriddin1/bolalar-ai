@@ -109,6 +109,33 @@ offline generator handles every topic in the curriculum.
 To use a real model, set `OPENAI_API_KEY` in `server/.env`. `OPENAI_BASE_URL` points the same code
 at Ollama, LM Studio, Groq or any OpenAI-compatible endpoint.
 
+### Deploy
+
+The two halves go to different platforms, and that split is not an accident: the
+API needs a long-running process, a native SQLite module and a writable
+filesystem, so it cannot run as a serverless function.
+
+**API → Render.** The repository ships a [`render.yaml`](render.yaml) blueprint.
+Point Render at the repo, and it builds `server/Dockerfile`, generates
+`JWT_SECRET` and exposes `/health` as the health check. After the frontend is up,
+set `CORS_ORIGIN` to its URL. On the free plan the SQLite file resets when the
+service restarts, which is fine for a public demo — attach a disk at `/data` to
+make it durable.
+
+**Web → Vercel.** Import the repo at [vercel.com/new](https://vercel.com/new) and
+set **Root Directory** to `web`. Add one environment variable:
+
+```
+VITE_API_URL = https://<your-api>.onrender.com
+```
+
+Vite inlines it at build time, so redeploy the frontend after changing it. Left
+unset, the client calls `/api` on its own origin, which is what the dev-server
+proxy expects locally.
+
+Free Render instances sleep when idle, so the first request after a quiet period
+takes a few seconds to wake the API.
+
 ### Docker
 
 ```bash
