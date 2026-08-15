@@ -8,6 +8,10 @@ The interesting part is not the chat box — it is what sits around the model: a
 curriculum, a schema-validated generation pipeline that refuses unusable model output, server-side
 grading, and a spaced-repetition scheduler that decides what to ask next.
 
+**[→ Live demo](https://bolalar-ai.vercel.app)** — no sign-up needed to look around; register a
+child profile in a few seconds to take a lesson. The API sleeps when idle, so the very first
+request can take up to a minute to wake it.
+
 <p align="center">
   <img src="docs/dashboard.png" alt="Dashboard with streak, accuracy and topic list" width="49%">
   <img src="docs/quiz.png" alt="Quiz with immediate feedback and explanation" width="49%">
